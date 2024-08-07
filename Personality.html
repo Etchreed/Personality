@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Advanced Personality Quiz</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #6e8efb 0%, #a777e3 100%);
+            color: #333;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 800px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+
+        h1 {
+            color: #4a47a3;
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        p {
+            color: #555;
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        button {
+            background: #4a47a3;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            margin: 0.5rem;
+            font-weight: 600;
+        }
+
+        button:hover {
+            background: #3a3782;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(74, 71, 163, 0.4);
+        }
+
+        .btn-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .progress-bar {
+            height: 10px;
+            background-color: #e0e0e0;
+            border-radius: 5px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+
+        .progress-bar div {
+            height: 100%;
+            background: linear-gradient(90deg, #6e8efb, #a777e3);
+            transition: width 0.3s ease;
+        }
+
+        #timer {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            color: #4a47a3;
+            font-weight: 600;
+        }
+
+        #results {
+            margin-top: 2rem;
+        }
+
+        .personality-type {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #4a47a3;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .personality-description {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            text-align: left;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 10px;
+            margin-bottom: 1rem;
+        }
+
+        .chart-container {
+            margin-top: 2rem;
+            height: 300px;
+        }
+
+        .trait-bar {
+            background-color: #e0e0e0;
+            height: 20px;
+            border-radius: 10px;
+            margin: 10px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .trait-bar-fill {
+            background: linear-gradient(90deg, #6e8efb, #a777e3);
+            height: 100%;
+            border-radius: 10px;
+            transition: width 1s ease-out;
+        }
+
+        .trait-label {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: white;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+            z-index: 1;
+        }
+
+        #personality-summary {
+            margin-top: 2rem;
+            text-align: left;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 10px;
+        }
+
+        #strengths-weaknesses {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1rem;
+        }
+
+        .strength-weakness-box {
+            width: 48%;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 10px;
+        }
+
+        #career-suggestions {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 10px;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                width: 95%;
+                padding: 1.5rem;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .btn-container {
+                grid-template-columns: 1fr;
+            }
+
+            #strengths-weaknesses {
+                flex-direction: column;
+            }
+
+            .strength-weakness-box {
+                width: 100%;
+                margin-bottom: 1rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container" id="main-container">
+        <p>Please be patient as this quiz will take approximately 26 minutes to complete.</p>
+
+        <!-- Content will be dynamically inserted here -->
+    </div>
+
+    <script>
+        const questions = [
+            { question: "How do you usually feel in social gatherings?", answers: { A: "Very comfortable and energized", B: "Somewhat comfortable", C: "A bit uneasy", D: "Very anxious and drained" }, trait: "Extraversion" },
+            { question: "How do you react to sudden changes?", answers: { A: "Adapt quickly and easily", B: "Take some time to adjust", C: "Feel stressed and resistant", D: "Feel overwhelmed and disoriented" }, trait: "Adaptability" },
+            { question: "How do you approach problem-solving?", answers: { A: "Logical and analytical", B: "Creative and intuitive", C: "Practical and systematic", D: "Flexible and adaptive" }, trait: "Problem Solving" },
+            { question: "How do you handle stress?", answers: { A: "Stay calm and composed", B: "Feel slightly anxious but manage", C: "Feel very anxious and overwhelmed", D: "Panic and struggle to cope" }, trait: "Stress Management" },
+            { question: "How do you prefer to spend your free time?", answers: { A: "Socializing with friends", B: "Engaging in hobbies", C: "Relaxing at home", D: "Exploring new places" }, trait: "Leisure Preference" },
+            { question: "How do you make important decisions?", answers: { A: "Rely on facts and logic", B: "Trust your gut feeling", C: "Consider pros and cons carefully", D: "Seek advice from others" }, trait: "Decision Making" },
+            { question: "How do you express your emotions?", answers: { A: "Openly and freely", B: "Selectively with close friends", C: "Keep them mostly to yourself", D: "Have difficulty expressing them" }, trait: "Emotional Expression" },
+            { question: "How do you handle conflicts?", answers: { A: "Address them directly", B: "Try to find a compromise", C: "Avoid confrontation", D: "Become defensive or aggressive" }, trait: "Conflict Resolution" },
+            { question: "How do you approach learning new skills?", answers: { A: "Eagerly and quickly", B: "Steadily with practice", C: "Cautiously and thoroughly", D: "With some reluctance" }, trait: "Learning Style" },
+            { question: "How do you view rules and authority?", answers: { A: "Generally follow them", B: "Question them when necessary", C: "Strictly adhere to them", D: "Often challenge or ignore them" }, trait: "Authority Orientation" },
+            { question: "How do you handle criticism?", answers: { A: "View it as an opportunity to improve", B: "Accept it but feel somewhat hurt", C: "Become defensive", D: "Take it very personally" }, trait: "Feedback Reception" },
+            { question: "How do you approach goal-setting?", answers: { A: "Set ambitious, long-term goals", B: "Focus on short-term, achievable objectives", C: "Prefer to go with the flow", D: "Find goal-setting stressful" }, trait: "Goal Orientation" },
+            { question: "How do you work in team settings?", answers: { A: "Take on leadership roles", B: "Contribute actively as a team member", C: "Prefer working independently", D: "Feel uncomfortable in team settings" }, trait: "Team Dynamics" },
+            { question: "How do you handle unexpected obstacles?", answers: { A: "See them as challenges to overcome", B: "Feel stressed but persevere", C: "Become discouraged easily", D: "Give up when faced with difficulties" }, trait: "Resilience" },
+            { question: "How do you approach creative tasks?", answers: { A: "Enjoy them and often have unique ideas", B: "Approach them systematically", C: "Prefer more structured tasks", D: "Find them challenging and uncomfortable" }, trait: "Creativity" },
+            { question: "How do you manage your time?", answers: { A: "Highly organized and efficient", B: "Generally organized with some flexibility", C: "Tend to procrastinate", D: "Often feel overwhelmed by time management" }, trait: "Time Management" },
+            { question: "How do you handle public speaking?", answers: { A: "Enjoy it and feel confident", B: "Feel nervous but manage", C: "Avoid it when possible", D: "Experience extreme anxiety" }, trait: "Public Speaking" },
+            { question: "How do you approach risk-taking?", answers: { A: "Enjoy taking calculated risks", B: "Cautious but open to some risks", C: "Prefer to play it safe", D: "Highly risk-averse" }, trait: "Risk Tolerance" },
+            { question: "How do you handle disappointment?", answers: { A: "Bounce back quickly", B: "Take some time to process but recover", C: "Dwell on it for a while", D: "Have difficulty moving past it" }, trait: "Emotional Resilience" },
+            { question: "How do you approach financial decisions?", answers: { A: "Carefully plan and budget", B: "Balance saving and spending", C: "Tend to be impulsive with spending", D: "Avoid thinking about finances" }, trait: "Financial Management" },
+            { question: "How do you handle multitasking?", answers: { A: "Thrive on juggling multiple tasks", B: "Can manage a few tasks at once", C: "Prefer to focus on one task at a time", D: "Find it overwhelming and stressful" }, trait: "Multitasking Ability" },
+            { question: "How do you approach physical exercise?", answers: { A: "Regularly engage in intense workouts", B: "Maintain a moderate exercise routine", C: "Exercise occasionally", D: "Rarely exercise" }, trait: "Physical Activity" },
+            { question: "How do you handle waiting?", answers: { A: "Patient and use the time productively", B: "Generally patient with some restlessness", C: "Become impatient quickly", D: "Find waiting extremely frustrating" }, trait: "Patience" },
+            { question: "How do you approach learning about different cultures?", answers: { A: "Eagerly seek out diverse cultural experiences", B: "Open to learning about other cultures", C: "Somewhat interested but not actively seeking", D: "Prefer to stick with familiar cultures" }, trait: "Cultural Openness" },
+            { question: "How do you handle technology?", answers: { A: "Embrace new technologies eagerly", B: "Adapt to new tech with some effort", C: "Prefer familiar technologies", D: "Find new technologies frustrating" }, trait: "Tech Adaptability" },
+            { question: "How do you approach personal growth?", answers: { A: "Constantly seek self-improvement", B: "Open to growth opportunities", C: "Content with current self", D: "Resistant to change" }, trait: "Personal Growth Orientation" },
+            { question: "How do you handle success?", answers: { A: "Feel proud and motivated to achieve more", B: "Feel satisfied but remain humble", C: "Downplay achievements", D: "Feel uncomfortable with recognition" }, trait: "Success Attitude" },
+            { question: "How do you approach routine tasks?", answers: { A: "Find ways to make them interesting", B: "Complete them efficiently", C: "Procrastinate but eventually complete them", D: "Strongly dislike and avoid them" }, trait: "Routine Task Management" },
+            { question: "How do you handle group discussions?", answers: { A: "Actively participate and share ideas", B: "Contribute when comfortable", C: "Prefer to listen more than speak", D: "Feel anxious in group settings" }, trait: "Group Participation" },
+            { question: "How do you approach learning from mistakes?", answers: { A: "See them as valuable learning opportunities", B: "Try to learn but feel some frustration", C: "Dwell on mistakes negatively", D: "Avoid thinking about past mistakes" }, trait: "Error Processing" },
+            { question: "How do you handle long-term projects?", answers: { A: "Plan thoroughly and execute consistently", B: "Start strong but may lose momentum", C: "Procrastinate and rush near deadlines", D: "Feel overwhelmed by long-term commitments" }, trait: "Project Management" },
+            { question: "How do you approach giving feedback?", answers: { A: "Provide honest, constructive feedback", B: "Give positive feedback easily, struggle with negative", C: "Hesitate to give feedback", D: "Avoid giving feedback when possible" }, trait: "Feedback Provision" },
+            { question: "How do you handle unexpected free time?", answers: { A: "Use it productively", B: "Relax and enjoy the break", C: "Feel a bit lost or unsure", D: "Become anxious without structure" }, trait: "Leisure Management" },
+            { question: "How do you approach networking?", answers: { A: "Actively seek new connections", B: "Engage when opportunities arise", C: "Feel uncomfortable but participate if necessary", D: "Avoid networking situations" }, trait: "Networking Aptitude" },
+            { question: "How do you handle setbacks in your goals?", answers: { A: "Reassess and adapt quickly", B: "Feel discouraged but eventually refocus", C: "Lose motivation for a while", D: "Give up on the goal" }, trait: "Goal Persistence" },
+            { question: "How do you approach asking for help?", answers: { A: "Comfortable seeking assistance when needed", B: "Ask for help after trying on your own", C: "Hesitate to ask but will if necessary", D: "Avoid asking for help" }, trait: "Help-Seeking Behavior" },
+            { question: "How do you handle compliments?", answers: { A: "Accept them graciously", B: "Feel pleased but slightly embarrassed", C: "Deflect or downplay them", D: "Feel very uncomfortable receiving them" }, trait: "Compliment Reception" },
+            { question: "How do you approach learning new languages?", answers: { A: "Eager to learn multiple languages", B: "Interested in learning but find it challenging", C: "Learn if necessary but not enthusiastic", D: "Avoid learning new languages" }, trait: "Language Learning Attitude" },
+            { question: "How do you handle working under pressure?", answers: { A: "Thrive and perform well", B: "Feel stressed but manage to perform", C: "Performance suffers under pressure", D: "Become overwhelmed and struggle significantly" }, trait: "Pressure Management" },
+            { question: "How do you approach volunteering or community service?", answers: { A: "Actively seek opportunities to help", B: "Participate when convenient", C: "Rarely volunteer", D: "Avoid volunteering" }, trait: "Community Engagement" },
+            { question: "How do you handle changes in your environment?", answers: { A: "Adapt quickly and easily", B: "Take some time to adjust but manage", C: "Feel uncomfortable with changes", D: "Strongly resist environmental changes" }, trait: "Environmental Adaptability" },
+            { question: "How do you approach learning about complex topics?", answers: { A: "Enjoy the challenge of difficult subjects", B: "Willing to learn but may struggle", C: "Prefer simpler topics", D: "Avoid complex subjects" }, trait: "Intellectual Curiosity" },
+            { question: "How do you handle long-term commitments?", answers: { A: "Fully commit and follow through", B: "Generally reliable but may waver", C: "Struggle with long-term commitments", D: "Avoid making long-term commitments" }, trait: "Commitment" },
+            { question: "How do you approach artistic activities?", answers: { A: "Regularly engage in creative pursuits", B: "Enjoy art but don't create often", C: "Appreciate art but don't participate", D: "Little interest in artistic activities" }, trait: "Artistic Inclination" },
+            { question: "How do you handle decision-making for others?", answers: { A: "Comfortable making decisions that affect others", B: "Can make decisions but feel some stress", C: "Prefer others to make such decisions", D: "Avoid being in charge of decisions" }, trait: "Leadership" },
+            { question: "How do you approach fitness and health?", answers: { A: "Prioritize health and fitness", B: "Try to maintain a healthy lifestyle", C: "Know you should but struggle to maintain", D: "Pay little attention to health and fitness" }, trait: "Health Consciousness" },
+            { question: "How do you handle financial risks?", answers: { A: "Willing to take calculated financial risks", B: "Somewhat cautious with finances", C: "Very conservative with money", D: "Avoid financial decisions" }, trait: "Financial Risk Tolerance" },
+            { question: "How do you approach learning new technologies?", answers: { A: "Eagerly adopt and learn new tech", B: "Willing to learn when necessary", C: "Hesitant to adopt new technologies", D: "Resist technological changes" }, trait: "Technological Adaptability" },
+            { question: "How do you handle group leadership roles?", answers: { A: "Often take on leadership positions", B: "Can lead if needed", C: "Prefer to follow in groups", D: "Avoid leadership responsibilities" }, trait: "Leadership Inclination" },
+            { question: "How do you approach travel and new experiences?", answers: { A: "Seek out new adventures regularly", B: "Enjoy new experiences occasionally", C: "Prefer familiar environments", D: "Avoid unfamiliar situations" }, trait: "Openness to Experience" },
+            { question: "How do you handle interpersonal conflicts?", answers: { A: "Address conflicts directly and calmly", B: "Try to mediate and find compromise", C: "Tend to avoid confrontations", D: "Become emotional or defensive in conflicts" }, trait: "Conflict Resolution" },
+            { question: "How do you approach personal finances?", answers: { A: "Carefully plan and budget", B: "Generally aware of finances", C: "Tend to overspend", D: "Avoid thinking about finances" }, trait: "Financial Management" },
+            { question: "How do you handle public recognition?", answers: { A: "Enjoy and seek public recognition", B: "Appreciate recognition but don't seek it", C: "Feel uncomfortable with public attention", D: "Strongly dislike being in the spotlight" }, trait: "Public Recognition Comfort" },
+            { question: "How do you approach learning from others?", answers: { A: "Actively seek mentorship and advice", B: "Open to learning from others", C: "Prefer to figure things out alone", D: "Resistant to others' input" }, trait: "Openness to Guidance" },
+            { question: "How do you handle routine and structure?", answers: { A: "Thrive with clear routines", B: "Appreciate some structure", C: "Prefer flexibility over routine", D: "Feel constrained by routines" }, trait: "Structure Preference" },
+            { question: "How do you approach moral dilemmas?", answers: { A: "Have clear, unwavering principles", B: "Consider context but have core values", C: "Often unsure in moral gray areas", D: "Believe morality is relative" }, trait: "Moral Clarity" },
+            { question: "How do you handle receiving help?", answers: { A: "Graciously accept help when needed", B: "Accept help but prefer self-reliance", C: "Reluctant to accept help", D: "Refuse help even when needed" }, trait: "Help Acceptance" },
+            { question: "How do you approach work-life balance?", answers: { A: "Maintain a clear separation", B: "Try to balance but sometimes struggle", C: "Often let work dominate", D: "Struggle significantly with balance" }, trait: "Work-Life Balance" },
+            { question: "How do you handle group social events?", answers: { A: "Eagerly participate and organize", B: "Enjoy attending but don't organize", C: "Attend out of obligation", D: "Avoid group social events" }, trait: "Social Engagement" },
+            { question: "How do you approach personal weaknesses?", answers: { A: "Actively work on improving them", B: "Acknowledge and sometimes work on them", C: "Try to hide or ignore weaknesses", D: "Feel very insecure about weaknesses" }, trait: "Self-Improvement" },
+            { question: "How do you handle long-term planning?", answers: { A: "Have clear long-term goals and plans", B: "Have some long-term ideas", C: "Focus more on the short-term", D: "Avoid thinking about the future" }, trait: "Future Orientation" }
+        ];
+
+        let currentQuestionIndex = 0;
+        let userAnswers = [];
+        let timerInterval;
+        let secondsLeft = 30;
+
+        function showWelcome() {
+            const container = document.getElementById('main-container');
+            container.innerHTML = `
+                <h1>Welcome to the Personality Quiz</h1>
+                <p>Discover your unique personality traits with our comprehensive 60-question assessment. This quiz is designed to provide a detailed analysis of your personality across various dimensions.</p>
+                <p>You'll have 30 seconds to answer each question. Take your time and answer honestly for the most accurate results.</p>
+                <button onclick="startQuiz()">Start Quiz</button>
+            `;
+        }
+
+        function startQuiz() {
+            currentQuestionIndex = 0;
+            userAnswers = [];
+            showQuestion();
+        }
+
+        function showQuestion() {
+            const container = document.getElementById('main-container');
+            const question = questions[currentQuestionIndex];
+            secondsLeft = 30;
+
+            container.innerHTML = `
+                <div id="timer">Time left: 30s</div>
+                <div class="progress-bar"><div style="width: ${(currentQuestionIndex / questions.length) * 100}%"></div></div>
+                <h1>Question ${currentQuestionIndex + 1} of ${questions.length}</h1>
+                <p>${question.question}</p>
+                <div class="btn-container">
+                    ${Object.entries(question.answers).map(([key, value]) => `
+                        <button onclick="selectAnswer('${key}')">${key}: ${value}</button>
+                    `).join('')}
+                </div>
+            `;
+
+            startTimer();
+        }
+
+        function startTimer() {
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                secondsLeft--;
+                document.getElementById('timer').textContent = `Time left: ${secondsLeft}s`;
+                if (secondsLeft <= 0) {
+                    selectAnswer(null);
+                }
+            }, 1000);
+        }
+
+        function selectAnswer(answer) {
+            clearInterval(timerInterval);
+            userAnswers.push(answer);
+            currentQuestionIndex++;
+            if (currentQuestionIndex < questions.length) {
+                showQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            const container = document.getElementById('main-container');
+            const personalityProfile = analyzePersonality(userAnswers);
+
+            container.innerHTML = `
+                <h1>Your Personality Analysis</h1>
+                <div class="personality-type">${personalityProfile.type}</div>
+                <div class="personality-description">${personalityProfile.description}</div>
+                <div id="trait-breakdown"></div>
+                <div class="chart-container"><canvas id="personalityChart"></canvas></div>
+                <div id="personality-summary">
+                    <h2>Personality Summary</h2>
+                    <p>${personalityProfile.summary}</p>
+                </div>
+                <div id="strengths-weaknesses">
+                    <div class="strength-weakness-box">
+                        <h3>Key Strengths</h3>
+                        <ul>${personalityProfile.strengths.map(s => `<li>${s}</li>`).join('')}</ul>
+                    </div>
+                    <div class="strength-weakness-box">
+                        <h3>Potential Weaknesses</h3>
+                        <ul>${personalityProfile.weaknesses.map(w => `<li>${w}</li>`).join('')}</ul>
+                    </div>
+                </div>
+                <div id="career-suggestions">
+                    <h3>Career Suggestions</h3>
+                    <p>${personalityProfile.careerSuggestions}</p>
+                </div>
+                <button onclick="startQuiz()">Retake Quiz</button>
+            `;
+
+            createTraitBars(personalityProfile.traits);
+            createChart(personalityProfile.traits);
+        }
+
+        function analyzePersonality(answers) {
+            const traitScores = {};
+            questions.forEach((question, index) => {
+                const answer = answers[index];
+                if (!traitScores[question.trait]) {
+                    traitScores[question.trait] = 0;
+                }
+                traitScores[question.trait] += answer ? 4 - "ABCD".indexOf(answer) : 0;
+            });
+
+            const traits = Object.entries(traitScores).map(([trait, score]) => ({
+                trait,
+                score: (score / (4 * questions.filter(q => q.trait === trait).length)) * 100
+            })).sort((a, b) => b.score - a.score);
+
+            const topTraits = traits.slice(0, 5);
+            const personalityType = determinePersonalityType(topTraits);
+
+            return {
+                type: personalityType,
+                description: getPersonalityDescription(personalityType, topTraits),
+                traits: traits,
+                summary: generatePersonalitySummary(topTraits),
+                strengths: generateStrengths(topTraits),
+                weaknesses: generateWeaknesses(topTraits),
+                careerSuggestions: generateCareerSuggestions(topTraits)
+            };
+        }
+
+        function determinePersonalityType(topTraits) {
+            const trait = topTraits[0].trait;
+            switch (trait) {
+                case "Extraversion": return "The Charismatic Influencer";
+                case "Adaptability": return "The Versatile Innovator";
+                case "Problem Solving": return "The Strategic Mastermind";
+                case "Stress Management": return "The Resilient Optimist";
+                case "Creativity": return "The Visionary Creator";
+                case "Decision Making": return "The Decisive Leader";
+                case "Emotional Expression": return "The Empathetic Communicator";
+                case "Conflict Resolution": return "The Diplomatic Mediator";
+                case "Learning Style": return "The Lifelong Scholar";
+                case "Authority Orientation": return "The Principled Architect";
+                default: return "The Multifaceted Individual";
+            }
+        }
+
+        function getPersonalityDescription(type, topTraits) {
+                let description = `Your personality type is "${type}". This unique combination of traits sets you apart and influences how you interact with the world around you.\n\n`;
+                description += "Your top traits are:\n\n";
+                topTraits.forEach(trait => {
+                    description += `${trait.trait} (${Math.round(trait.score)}%): ${getTraitDescription(trait.trait)}\n\n`;
+                });
+                return description;
+            }
+
+            function getTraitDescription(trait) {
+                const descriptions = {
+                    "Extraversion": "You thrive in social situations and are energized by interactions with others.",
+                    "Adaptability": "You excel at adjusting to new situations and handling change with ease.",
+                    "Problem Solving": "You have a knack for analyzing complex situations and finding innovative solutions.",
+                    "Stress Management": "You have developed effective strategies for coping with pressure and maintaining composure.",
+                    "Creativity": "You possess a vivid imagination and a talent for generating original ideas.",
+                    "Decision Making": "You are confident in making choices and can weigh options effectively.",
+                    "Emotional Expression": "You are in tune with your emotions and can communicate them clearly to others.",
+                    "Conflict Resolution": "You have a talent for mediating disagreements and finding mutually beneficial solutions.",
+                    "Learning Style": "You have a natural curiosity and an effective approach to acquiring new knowledge.",
+                    "Authority Orientation": "You have a clear understanding of hierarchies and can navigate them effectively.",
+                };
+                return descriptions[trait] || "This is a significant aspect of your personality that influences your behavior and decisions.";
+            }
+
+            function generatePersonalitySummary(topTraits) {
+                return `Your personality is characterized by a strong ${topTraits[0].trait.toLowerCase()}, complemented by ${topTraits[1].trait.toLowerCase()} and ${topTraits[2].trait.toLowerCase()}. This combination suggests that you ${getPersonalityImplication(topTraits[0].trait)}. Your ${topTraits[1].trait.toLowerCase()} allows you to ${getPersonalityImplication(topTraits[1].trait)}, while your ${topTraits[2].trait.toLowerCase()} enables you to ${getPersonalityImplication(topTraits[2].trait)}.`;
+            }
+
+            function getPersonalityImplication(trait) {
+                const implications = {
+                    "Extraversion": "are likely to be outgoing and comfortable in social situations",
+                    "Adaptability": "can easily adjust to new environments and situations",
+                    "Problem Solving": "excel at finding solutions to complex issues",
+                    "Stress Management": "handle pressure well and maintain composure in challenging situations",
+                    "Creativity": "often come up with innovative ideas and unique perspectives",
+                    "Decision Making": "are confident in making choices and taking action",
+                    "Emotional Expression": "communicate your feelings effectively and understand others' emotions",
+                    "Conflict Resolution": "are skilled at mediating disagreements and finding compromises",
+                    "Learning Style": "quickly grasp new concepts and enjoy acquiring knowledge",
+                    "Authority Orientation": "understand and respect hierarchies while maintaining your principles",
+                };
+                return implications[trait] || "have a unique strength that influences your interactions and decisions";
+            }
+
+            function generateStrengths(topTraits) {
+                const strengthMap = {
+                    "Extraversion": "Building and maintaining social networks",
+                    "Adaptability": "Thriving in dynamic environments",
+                    "Problem Solving": "Analytical thinking and finding innovative solutions",
+                    "Stress Management": "Maintaining composure under pressure",
+                    "Creativity": "Generating original ideas and thinking outside the box",
+                    "Decision Making": "Making timely and effective choices",
+                    "Emotional Expression": "Empathy and clear communication of feelings",
+                    "Conflict Resolution": "Mediating disagreements and finding win-win solutions",
+                    "Learning Style": "Quick acquisition and application of new knowledge",
+                    "Authority Orientation": "Navigating hierarchies while upholding principles",
+                };
+                return topTraits.slice(0, 3).map(trait => strengthMap[trait.trait] || `Leveraging ${trait.trait.toLowerCase()} in various situations`);
+            }
+
+            function generateWeaknesses(topTraits) {
+                const weaknessMap = {
+                    "Extraversion": "Potential difficulty with solitary tasks or introspection",
+                    "Adaptability": "Possibly lacking stability or consistency in some areas",
+                    "Problem Solving": "May overthink simple issues or neglect emotional aspects",
+                    "Stress Management": "Might underestimate the impact of long-term stress",
+                    "Creativity": "Could struggle with highly structured or routine tasks",
+                    "Decision Making": "Might make hasty decisions without full consideration",
+                    "Emotional Expression": "May be overly affected by others' emotions",
+                    "Conflict Resolution": "Could avoid necessary confrontations",
+                    "Learning Style": "Might lose interest in topics quickly once mastered",
+                    "Authority Orientation": "Potential difficulty with very flexible environments",
+                };
+                return topTraits.slice(0, 3).map(trait => weaknessMap[trait.trait] || `Potential overreliance on ${trait.trait.toLowerCase()}`);
+            }
+
+            function generateCareerSuggestions(topTraits) {
+                const careerMap = {
+                    "Extraversion": ["Public Relations", "Sales", "Teaching"],
+                    "Adaptability": ["Project Management", "Consulting", "Entrepreneurship"],
+                    "Problem Solving": ["Engineering", "Data Analysis", "Research"],
+                    "Stress Management": ["Emergency Services", "Crisis Management", "Therapy"],
+                    "Creativity": ["Graphic Design", "Writing", "Product Development"],
+                    "Decision Making": ["Business Leadership", "Law", "Financial Analysis"],
+                    "Emotional Expression": ["Counseling", "Human Resources", "Performing Arts"],
+                    "Conflict Resolution": ["Mediation", "Diplomacy", "Customer Service"],
+                    "Learning Style": ["Academia", "Journalism", "Training and Development"],
+                    "Authority Orientation": ["Management", "Policy Making", "Quality Assurance"],
+                };
+                const suggestions = topTraits.slice(0, 3).flatMap(trait => careerMap[trait.trait] || []);
+                return `Based on your personality profile, you might excel in careers such as ${suggestions.join(', ')}. These fields align well with your strengths and preferences.`;
+            }
+
+            function createTraitBars(traits) {
+                const traitBreakdown = document.getElementById('trait-breakdown');
+                traits.forEach(trait => {
+                    const traitBar = document.createElement('div');
+                    traitBar.className = 'trait-bar';
+                    traitBar.innerHTML = `
+                    <div class="trait-bar-fill" style="width: 0%"></div>
+                    <span class="trait-label">${trait.trait}: ${Math.round(trait.score)}%</span>
+                `;
+                    traitBreakdown.appendChild(traitBar);
+                    setTimeout(() => traitBar.querySelector('.trait-bar-fill').style.width = `${trait.score}%`, 100);
+                });
+            }
+
+            function createChart(traits) {
+                const ctx = document.getElementById('personalityChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'radar',
+                    data: {
+                        labels: traits.map(t => t.trait),
+                        datasets: [{
+                            label: 'Your Personality Profile',
+                            data: traits.map(t => t.score),
+                            backgroundColor: 'rgba(110, 142, 251, 0.2)',
+                            borderColor: 'rgba(110, 142, 251, 1)',
+                            pointBackgroundColor: 'rgba(110, 142, 251, 1)',
+                            pointBorderColor: '#fff',
+                            pointHoverBackgroundColor: '#fff',
+                            pointHoverBorderColor: 'rgba(110, 142, 251, 1)'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            r: {
+                                angleLines: {
+                                    display: false
+                                },
+                                suggestedMin: 0,
+                                suggestedMax: 100
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        }
+                    }
+                });
+            }
+
+            document.addEventListener('DOMContentLoaded', showWelcome);
+        </script>
+    </body>
+    
+    </html>
